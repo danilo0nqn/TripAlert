@@ -1,3 +1,4 @@
+using System.Globalization;
 using TripAlert.Core.Automation;
 using TripAlert.Core.Models;
 using TripAlert.Core.Services.FlightApis;
@@ -12,36 +13,36 @@ Console.CancelKeyPress += (_, eventArgs) =>
     cancellationSource.Cancel();
 };
 
-if (args.Length != 5)
+Console.WriteLine("=== TripAlert ===");
+Console.WriteLine("Todos los valores monetarios se expresarán en dólares estadounidenses (USD).\n");
+
+var originCity = ReadRequiredValue("Ciudad de partida: ");
+var destinationCity = ReadRequiredValue("Ciudad de llegada: ");
+var fromDate = ReadDate("Fecha de inicio de búsqueda (AAAA-MM-DD): ");
+var toDate = ReadDate("Fecha de fin de búsqueda (AAAA-MM-DD): ");
+
+while (toDate < fromDate)
 {
-    PrintUsage();
-    return;
+    Console.WriteLine("La fecha de fin no puede ser anterior a la fecha de inicio. Inténtelo nuevamente.");
+    toDate = ReadDate("Fecha de fin de búsqueda (AAAA-MM-DD): ");
 }
 
-if (!DateTime.TryParse(args[2], out var fromDate) || !DateTime.TryParse(args[3], out var toDate))
-{
-    Console.WriteLine("Las fechas deben tener un formato válido (por ejemplo, 2024-10-02).");
-    return;
-}
-
-if (!Enum.TryParse<TripPriority>(args[4], ignoreCase: true, out var priority))
-{
-    Console.WriteLine("La prioridad debe ser Precio, Tiempo o Escalas.");
-    return;
-}
+var priority = ReadPriority();
 
 var request = new UserSearchRequest
 {
-    OriginCity = args[0],
-    DestinationCity = args[1],
+    OriginCity = originCity,
+    DestinationCity = destinationCity,
     DepartureFrom = fromDate,
     DepartureTo = toDate,
-    Priority = priority
+    Priority = priority,
+    Currency = "USD"
 };
 
+using var skyscannerService = new SkyscannerFlightSearchService();
 var flightServices = new IFlightSearchService[]
 {
-    new SkyscannerFlightSearchService(),
+    skyscannerService,
     new KiwiFlightSearchService(),
     new AmadeusFlightSearchService(),
     new GoogleFlightsSearchService()
@@ -76,11 +77,53 @@ var automation = new TripAlertAutomation(
     telegramChatId,
     Environment.GetEnvironmentVariable("TRIPALERT_WHATSAPP_NUMBER") ?? "000000");
 
+Console.WriteLine();
 Console.WriteLine("Automatización iniciada. Presione Ctrl+C para detener.");
 await automation.RunAsync(request, cancellationSource.Token);
 
-static void PrintUsage()
+static string ReadRequiredValue(string prompt)
 {
-    Console.WriteLine("Uso: TripAlert.App <ciudad_origen> <ciudad_destino> <fecha_desde> <fecha_hasta> <prioridad>");
-    Console.WriteLine("Ejemplo: TripAlert.App Neuquén \"Buenos Aires\" 2024-10-02 2024-10-04 Precio");
+    while (true)
+    {
+        Console.Write(prompt);
+        var value = Console.ReadLine();
+        if (!string.IsNullOrWhiteSpace(value))
+        {
+            return value.Trim();
+        }
+
+        Console.WriteLine("El valor ingresado no puede estar vacío.");
+    }
+}
+
+static DateTime ReadDate(string prompt)
+{
+    var formats = new[] { "yyyy-MM-dd", "yyyy/MM/dd", "dd/MM/yyyy" };
+    while (true)
+    {
+        Console.Write(prompt);
+        var value = Console.ReadLine();
+        if (!string.IsNullOrWhiteSpace(value) &&
+            DateTime.TryParseExact(value.Trim(), formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date))
+        {
+            return date;
+        }
+
+        Console.WriteLine("Formato de fecha inválido. Utilice por ejemplo 2024-10-02.");
+    }
+}
+
+static TripPriority ReadPriority()
+{
+    while (true)
+    {
+        Console.Write("Prioridad (Precio/Tiempo/Escalas): ");
+        var value = Console.ReadLine();
+        if (!string.IsNullOrWhiteSpace(value) && Enum.TryParse<TripPriority>(value.Trim(), true, out var priority))
+        {
+            return priority;
+        }
+
+        Console.WriteLine("La prioridad debe ser Precio, Tiempo o Escalas.");
+    }
 }

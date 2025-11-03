@@ -22,6 +22,7 @@ public sealed class TripEqualityComparer : IEqualityComparer<Trip>
 
         if (!string.Equals(x.DepartureAirport.AirportCode, y.DepartureAirport.AirportCode, StringComparison.OrdinalIgnoreCase) ||
             !string.Equals(x.ArrivalAirport.AirportCode, y.ArrivalAirport.AirportCode, StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(x.Currency, y.Currency, StringComparison.OrdinalIgnoreCase) ||
             x.Flights.Count != y.Flights.Count)
         {
             return false;
@@ -35,7 +36,8 @@ public sealed class TripEqualityComparer : IEqualityComparer<Trip>
                 !string.Equals(xf.DepartureAirport.AirportCode, yf.DepartureAirport.AirportCode, StringComparison.OrdinalIgnoreCase) ||
                 !string.Equals(xf.ArrivalAirport.AirportCode, yf.ArrivalAirport.AirportCode, StringComparison.OrdinalIgnoreCase) ||
                 xf.DepartureTime != yf.DepartureTime ||
-                xf.ArrivalTime != yf.ArrivalTime)
+                xf.ArrivalTime != yf.ArrivalTime ||
+                !string.Equals(xf.Currency, yf.Currency, StringComparison.OrdinalIgnoreCase))
             {
                 return false;
             }
@@ -50,6 +52,7 @@ public sealed class TripEqualityComparer : IEqualityComparer<Trip>
         var hash = new HashCode();
         hash.Add(obj.DepartureAirport.AirportCode, StringComparer.OrdinalIgnoreCase);
         hash.Add(obj.ArrivalAirport.AirportCode, StringComparer.OrdinalIgnoreCase);
+        hash.Add(obj.Currency, StringComparer.OrdinalIgnoreCase);
         foreach (var flight in obj.Flights)
         {
             hash.Add(flight.Airline, StringComparer.OrdinalIgnoreCase);
@@ -57,6 +60,7 @@ public sealed class TripEqualityComparer : IEqualityComparer<Trip>
             hash.Add(flight.ArrivalAirport.AirportCode, StringComparer.OrdinalIgnoreCase);
             hash.Add(flight.DepartureTime);
             hash.Add(flight.ArrivalTime);
+            hash.Add(flight.Currency, StringComparer.OrdinalIgnoreCase);
         }
 
         return hash.ToHashCode();

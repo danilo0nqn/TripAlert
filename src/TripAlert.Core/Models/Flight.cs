@@ -17,7 +17,8 @@ public sealed class Flight
         decimal price,
         TimeSpan duration,
         bool baggageIncluded,
-        string baggageNotes)
+        string baggageNotes,
+        string currency = "USD")
     {
         Airline = airline;
         DepartureAirport = departureAirport;
@@ -28,6 +29,7 @@ public sealed class Flight
         Duration = duration;
         BaggageIncluded = baggageIncluded;
         BaggageNotes = baggageNotes;
+        Currency = currency;
     }
 
     /// <summary>
@@ -74,4 +76,9 @@ public sealed class Flight
     /// Notas adicionales sobre políticas de equipaje.
     /// </summary>
     public string BaggageNotes { get; }
+
+    /// <summary>
+    /// Moneda asociada al precio del vuelo.
+    /// </summary>
+    public string Currency { get; }
 }

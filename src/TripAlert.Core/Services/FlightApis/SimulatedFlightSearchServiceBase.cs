@@ -79,7 +79,8 @@ public abstract class SimulatedFlightSearchServiceBase : IFlightSearchService
                         price,
                         duration,
                         baggageIncluded,
-                        baggageNotes);
+                        baggageNotes,
+                        request.Currency);
 
                     var trip = new Trip(
                         new[] { flight },
@@ -88,7 +89,8 @@ public abstract class SimulatedFlightSearchServiceBase : IFlightSearchService
                         arrivalTime,
                         price,
                         origin,
-                        destination);
+                        destination,
+                        request.Currency);
 
                     results.Add(trip);
                 }

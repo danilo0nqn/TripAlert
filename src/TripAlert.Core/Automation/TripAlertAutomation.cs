@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using TripAlert.Core.Models;
 using TripAlert.Core.Services.FlightApis;
@@ -127,10 +128,10 @@ public sealed class TripAlertAutomation
         {
             var trip = trips[i];
             builder.AppendLine($"#{i + 1} - {trip.DepartureAirport.City} ({trip.DepartureAirport.AirportCode}) -> {trip.ArrivalAirport.City} ({trip.ArrivalAirport.AirportCode})");
-            builder.AppendLine($"      Precio: {trip.TotalPrice:C2} | Escalas: {trip.Stops} | Duración: {trip.TotalDuration}");
+            builder.AppendLine($"      Precio: {trip.Currency} {trip.TotalPrice.ToString("F2", CultureInfo.InvariantCulture)} | Escalas: {trip.Stops} | Duración: {trip.TotalDuration}");
             foreach (var flight in trip.Flights)
             {
-                builder.AppendLine($"      Vuelo {flight.Airline}: {flight.DepartureAirport.AirportCode} {flight.DepartureTime:dd/MM HH:mm} -> {flight.ArrivalAirport.AirportCode} {flight.ArrivalTime:dd/MM HH:mm} | Equipaje: {(flight.BaggageIncluded ? "Incluido" : flight.BaggageNotes)}");
+                builder.AppendLine($"      Vuelo {flight.Airline}: {flight.DepartureAirport.AirportCode} {flight.DepartureTime:dd/MM HH:mm} -> {flight.ArrivalAirport.AirportCode} {flight.ArrivalTime:dd/MM HH:mm} | Precio: {flight.Currency} {flight.Price.ToString("F2", CultureInfo.InvariantCulture)} | Equipaje: {(flight.BaggageIncluded ? "Incluido" : flight.BaggageNotes)}");
             }
             if (i < trips.Count - 1)
             {

@@ -15,7 +15,8 @@ public sealed class Trip
         DateTimeOffset endTime,
         decimal totalPrice,
         CityAirport departureAirport,
-        CityAirport arrivalAirport)
+        CityAirport arrivalAirport,
+        string currency = "USD")
     {
         Flights = flights;
         Layovers = layovers;
@@ -24,6 +25,7 @@ public sealed class Trip
         TotalPrice = totalPrice;
         DepartureAirport = departureAirport;
         ArrivalAirport = arrivalAirport;
+        Currency = currency;
     }
 
     /// <summary>
@@ -60,6 +62,11 @@ public sealed class Trip
     /// Aeropuerto de llegada final.
     /// </summary>
     public CityAirport ArrivalAirport { get; }
+
+    /// <summary>
+    /// Moneda asociada al precio total del viaje.
+    /// </summary>
+    public string Currency { get; }
 
     /// <summary>
     /// Duración total considerando vuelos y escalas.

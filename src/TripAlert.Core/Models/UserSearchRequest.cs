@@ -31,6 +31,11 @@ public sealed class UserSearchRequest
     public TripPriority Priority { get; init; }
 
     /// <summary>
+    /// Moneda deseada para los resultados. Por defecto, USD para cumplir con el requerimiento.
+    /// </summary>
+    public string Currency { get; init; } = "USD";
+
+    /// <summary>
     /// Máximo de escalas permitidas (por defecto, 3 según el requerimiento).
     /// </summary>
     public int MaxStops { get; init; } = 3;
