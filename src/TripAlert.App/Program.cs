@@ -47,7 +47,21 @@ var flightServices = new IFlightSearchService[]
     new GoogleFlightsSearchService()
 };
 
-var telegramService = new ConsoleTelegramNotificationService();
+var telegramBotToken = Environment.GetEnvironmentVariable("TRIPALERT_TELEGRAM_BOT_TOKEN");
+if (string.IsNullOrWhiteSpace(telegramBotToken))
+{
+    Console.WriteLine("Debe configurar la variable de entorno TRIPALERT_TELEGRAM_BOT_TOKEN con el token del bot de Telegram.");
+    return;
+}
+
+var telegramChatId = Environment.GetEnvironmentVariable("TRIPALERT_TELEGRAM_CHAT");
+if (string.IsNullOrWhiteSpace(telegramChatId))
+{
+    Console.WriteLine("Debe configurar la variable de entorno TRIPALERT_TELEGRAM_CHAT con el identificador del chat de destino.");
+    return;
+}
+
+using var telegramService = new TelegramNotificationService(telegramBotToken);
 var whatsAppService = new DeferredWhatsAppNotificationService();
 var persistencePath = Path.Combine(AppContext.BaseDirectory, "data", "best_trips.json");
 var persistenceService = new JsonTripPersistenceService(persistencePath);
@@ -59,7 +73,7 @@ var automation = new TripAlertAutomation(
     telegramService,
     whatsAppService,
     TimeSpan.FromHours(24),
-    Environment.GetEnvironmentVariable("TRIPALERT_TELEGRAM_CHAT") ?? "000000",
+    telegramChatId,
     Environment.GetEnvironmentVariable("TRIPALERT_WHATSAPP_NUMBER") ?? "000000");
 
 Console.WriteLine("Automatización iniciada. Presione Ctrl+C para detener.");
